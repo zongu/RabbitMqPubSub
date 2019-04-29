@@ -30,7 +30,7 @@ namespace RabitMqPubSub.Applibs
             {
                 var channel = RabbitMqFactory.GetChannel(topicName);
                 //// generate queue
-                var queueName = channel.QueueDeclare(this.queueId, false, false, false, null).QueueName;
+                var queueName = channel.QueueDeclare(topicName, false, false, false, null).QueueName;
 
                 //// bind queue to exchange
                 channel.QueueBind(queueName, topicName, topicName, null);
@@ -38,14 +38,11 @@ namespace RabitMqPubSub.Applibs
 
                 consumer.Received += (model, ea) =>
                 {
-                    //if (ConfigHelper.SubQueueNames.Contains(ea.Exchange))
-                    //{
-                        var @event = JsonConvert.DeserializeObject<RabbitMqEventStream>(Encoding.UTF8.GetString(ea.Body));
-                        if (this.dispatcher.DispatchMessage(@event))
-                        {
-                            //channel.BasicAck(ea.DeliveryTag, false);
-                        }
-                    //}
+                    var @event = JsonConvert.DeserializeObject<RabbitMqEventStream>(Encoding.UTF8.GetString(ea.Body));
+                    if (this.dispatcher.DispatchMessage(@event))
+                    {
+
+                    }
                 };
 
                 var consumerTag = channel.BasicConsume(queueName, true, $"{Environment.MachineName}", false, false, null, consumer);

@@ -9,9 +9,9 @@ namespace RabitMqPubSub.Applibs
 
     internal static class RabbitMqProducer
     {
-        public static void Publish<T>(string exchangeName, T data)
+        public static void Publish<T>(string topicName, T data)
         {
-            var channel = RabbitMqFactory.GetChannel(exchangeName);
+            var channel = RabbitMqFactory.GetChannel(topicName);
             var es = new RabbitMqEventStream(
                 typeof(T).Name,
                 JsonConvert.SerializeObject(data),
@@ -19,8 +19,8 @@ namespace RabitMqPubSub.Applibs
             
             var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(es));
             channel.BasicPublish(
-                exchangeName,
-                exchangeName,
+                topicName,
+                topicName,
                 null,
                 body);
         }
