@@ -1,7 +1,6 @@
 ﻿
 namespace RabitMqPubSub.Applibs
 {
-    using System;
     using System.Collections.Generic;
     using RabbitMQ.Client;
 
@@ -37,7 +36,7 @@ namespace RabitMqPubSub.Applibs
         {
             factory = new ConnectionFactory();
 
-            connection = factory.CreateConnection(AmqpTcpEndpoint.ParseMultiple(Applibs.ConfigHelper.RabbitMqUri));
+            connection = factory.CreateConnection(AmqpTcpEndpoint.ParseMultiple(ConfigHelper.RabbitMqUri));
         }
 
         public static void Stop()

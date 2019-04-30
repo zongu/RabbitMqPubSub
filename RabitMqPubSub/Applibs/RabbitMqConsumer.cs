@@ -30,10 +30,10 @@ namespace RabitMqPubSub.Applibs
             {
                 var channel = RabbitMqFactory.GetChannel(topicName);
                 //// generate queue
-                var queueName = channel.QueueDeclare(topicName, false, false, false, null).QueueName;
+                var queueName = channel.QueueDeclare($"{this.queueId}-{topicName}", false, false, true, null).QueueName;
 
                 //// bind queue to exchange
-                channel.QueueBind(queueName, topicName, topicName, null);
+                channel.QueueBind(queueName, topicName, string.Empty, null);
                 var consumer = new EventingBasicConsumer(channel);
 
                 consumer.Received += (model, ea) =>

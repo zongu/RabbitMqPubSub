@@ -20,7 +20,7 @@ namespace RabitMqPubSub.Applibs
             var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(es));
             channel.BasicPublish(
                 topicName,
-                topicName,
+                string.Empty,
                 null,
                 body);
         }
