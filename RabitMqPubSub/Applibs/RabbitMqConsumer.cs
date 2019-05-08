@@ -41,11 +41,11 @@ namespace RabitMqPubSub.Applibs
                     var @event = JsonConvert.DeserializeObject<RabbitMqEventStream>(Encoding.UTF8.GetString(ea.Body));
                     if (this.dispatcher.DispatchMessage(@event))
                     {
-
+                        channel.BasicAck(ea.DeliveryTag, true);
                     }
                 };
 
-                var consumerTag = channel.BasicConsume(queueName, true, $"{Environment.MachineName}", false, false, null, consumer);
+                var consumerTag = channel.BasicConsume(queueName, false, $"{Environment.MachineName}", false, false, null, consumer);
             });
         }
     }
