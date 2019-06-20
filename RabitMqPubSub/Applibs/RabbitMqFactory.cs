@@ -34,8 +34,8 @@ namespace RabitMqPubSub.Applibs
 
         public static void Start(string hostUri)
         {
-            factory = new ConnectionFactory();
-
+            factory = new ConnectionFactory() { AutomaticRecoveryEnabled = true };
+            
             connection = factory.CreateConnection(AmqpTcpEndpoint.ParseMultiple(ConfigHelper.RabbitMqUri));
         }
 
