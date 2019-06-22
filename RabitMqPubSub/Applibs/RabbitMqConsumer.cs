@@ -6,6 +6,7 @@ namespace RabitMqPubSub.Applibs
     using System.Linq;
     using System.Text;
     using Newtonsoft.Json;
+    using RabbitMQ.Client;
     using RabbitMQ.Client.Events;
     using RabitMqPubSub.Model;
 
@@ -30,10 +31,10 @@ namespace RabitMqPubSub.Applibs
             {
                 var channel = RabbitMqFactory.GetChannel(topicName);
                 //// generate queue
-                var queueName = channel.QueueDeclare($"{this.queueId}-{topicName}", false, false, true, null).QueueName;
+                var queueName = channel.QueueDeclare($"{this.queueId}-{topicName}", false, false, false, null).QueueName;
 
                 //// bind queue to exchange
-                channel.QueueBind(queueName, topicName, string.Empty, null);
+                channel.QueueBind(queueName, $"Exchange-{ExchangeType.Direct}-{topicName}", string.Empty, null);
                 var consumer = new EventingBasicConsumer(channel);
 
                 consumer.Received += (model, ea) =>

@@ -1,6 +1,7 @@
 ﻿
 namespace RabitMqPubSub.Applibs
 {
+    using System;
     using System.Collections.Generic;
     using RabbitMQ.Client;
 
@@ -17,7 +18,7 @@ namespace RabitMqPubSub.Applibs
             if (!models.ContainsKey(topicName))
             {
                 var chennel = connection.CreateModel();
-                chennel.ExchangeDeclare(topicName, "topic");
+                chennel.ExchangeDeclare($"Exchange-{ExchangeType.Direct}-{topicName}", ExchangeType.Direct);
                 models.Add(topicName, chennel);
 
                 return true;
@@ -34,7 +35,11 @@ namespace RabitMqPubSub.Applibs
 
         public static void Start(string hostUri)
         {
-            factory = new ConnectionFactory() { AutomaticRecoveryEnabled = true };
+            factory = new ConnectionFactory()
+            {
+                AutomaticRecoveryEnabled = true,
+                NetworkRecoveryInterval = TimeSpan.FromSeconds(5)
+            };
             
             connection = factory.CreateConnection(AmqpTcpEndpoint.ParseMultiple(ConfigHelper.RabbitMqUri));
         }

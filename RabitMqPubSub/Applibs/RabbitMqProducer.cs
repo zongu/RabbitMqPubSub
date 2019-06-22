@@ -18,10 +18,13 @@ namespace RabitMqPubSub.Applibs
                 TimeStampHelper.ToUtcTimeStamp(DateTime.Now));
             
             var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(es));
+            var prop = channel.CreateBasicProperties();
+            prop.Expiration = ConfigHelper.RmqExpiration;
+
             channel.BasicPublish(
-                topicName,
+                $"Exchange-{ExchangeType.Direct}-{topicName}",
                 string.Empty,
-                null,
+                prop,
                 body);
         }
     }
