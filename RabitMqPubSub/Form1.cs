@@ -17,15 +17,23 @@ namespace RabitMqPubSub
             InitializeComponent();
             this.cbTopic.SelectedIndex = 0;
             this.lbMarquee.Text = string.Empty;
-            this.trMargueeMessaage.Start();
+            //this.trMargueeMessaage.Start();
         }
 
         private void btnSend_Click(object sender, EventArgs e)
         {
+            var btnName = ((Button)sender).Name;
             var msg = this.tbMessage.Text;
             if (!string.IsNullOrEmpty(msg))
             {
-                RabbitMqProducer.Publish(this.cbTopic.SelectedItem.ToString(), new SendMessage() { Content = msg });
+                if (btnName.Contains("Direct"))
+                {
+                    RabbitMqProducer.PublishDirect(this.cbTopic.SelectedItem.ToString(), new SendMessage() { Content = msg });
+                }
+                else if (btnName.Contains("Fanout"))
+                {
+                    RabbitMqProducer.PublishFanout(this.cbTopic.SelectedItem.ToString(), new SendMessage() { Content = msg });
+                }
             }
 
             this.tbMessage.Text = string.Empty;
@@ -69,7 +77,7 @@ namespace RabitMqPubSub
 
         private void trMargueeMessaage_Tick(object sender, EventArgs e)
         {
-            RabbitMqProducer.Publish(ConfigHelper.QueueId, new MarqueeMessage() { Content = DateTime.Now.ToString() });
+            //RabbitMqProducer.Publish(ConfigHelper.QueueId, new MarqueeMessage() { Content = DateTime.Now.ToString() });
         }
     }
 }

@@ -21,6 +21,7 @@ namespace RabitMqPubSub
             RabbitMqFactory.Start(ConfigHelper.RabbitMqUri);
 
             var consumer = new RabbitMqConsumer(
+                ConfigHelper.SubExchangeTypes,
                 ConfigHelper.SubQueueNames,
                 new PubSubDispatcher<RabbitMqEventStream>(AutoFacConfig.Container),
                 ConfigHelper.QueueId);

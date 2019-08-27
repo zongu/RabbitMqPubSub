@@ -14,12 +14,15 @@ namespace RabitMqPubSub.Applibs
     {
         private IPubSubDispatcher<RabbitMqEventStream> dispatcher;
 
+        private IEnumerable<string> exchangeTypes;
+
         private IEnumerable<string> queueNames;
 
         private string queueId;
 
-        public RabbitMqConsumer(IEnumerable<string> queueNames, IPubSubDispatcher<RabbitMqEventStream> dispatcher, string queueId)
+        public RabbitMqConsumer(IEnumerable<string> exchangeTypes, IEnumerable<string> queueNames, IPubSubDispatcher<RabbitMqEventStream> dispatcher, string queueId)
         {
+            this.exchangeTypes = exchangeTypes;
             this.queueNames = queueNames;
             this.dispatcher = dispatcher;
             this.queueId = queueId;
@@ -27,26 +30,34 @@ namespace RabitMqPubSub.Applibs
 
         public void Register()
         {
-            this.queueNames.ToList().ForEach(topicName =>
+            this.exchangeTypes.ToList().ForEach(exchangeType =>
             {
-                var channel = RabbitMqFactory.GetChannel(topicName);
-                //// generate queue
-                var queueName = channel.QueueDeclare($"{this.queueId}-{topicName}", false, false, false, null).QueueName;
 
-                //// bind queue to exchange
-                channel.QueueBind(queueName, $"Exchange-{ExchangeType.Direct}-{topicName}", string.Empty, null);
-                var consumer = new EventingBasicConsumer(channel);
-
-                consumer.Received += (model, ea) =>
+                this.queueNames.ToList().ForEach(topicName =>
                 {
-                    var @event = JsonConvert.DeserializeObject<RabbitMqEventStream>(Encoding.UTF8.GetString(ea.Body));
-                    if (this.dispatcher.DispatchMessage(@event))
-                    {
-                        channel.BasicAck(ea.DeliveryTag, true);
-                    }
-                };
+                    var channel = RabbitMqFactory.GetChannel(topicName, exchangeType);
+                    //// generate queue
+                    var queueName = channel.QueueDeclare($"{this.queueId}-{topicName}", false, false, false, null).QueueName;
 
-                var consumerTag = channel.BasicConsume(queueName, false, $"{Environment.MachineName}", false, false, null, consumer);
+                    //// bind queue to exchange
+                    channel.QueueBind(queueName, $"Exchange-{exchangeType}-{topicName}", string.Empty, null);
+                    var consumer = new EventingBasicConsumer(channel);
+
+                    consumer.Received += (model, ea) =>
+                    {
+                        var @event = JsonConvert.DeserializeObject<RabbitMqEventStream>(Encoding.UTF8.GetString(ea.Body));
+                        if (this.dispatcher.DispatchMessage(@event))
+                        {
+                            channel.BasicAck(ea.DeliveryTag, true);
+                        }
+                        else
+                        {
+                            channel.BasicNack(ea.DeliveryTag, true, true);
+                        }
+                    };
+
+                    var consumerTag = channel.BasicConsume(queueName, false, $"{Environment.MachineName}", false, false, null, consumer);
+                });
             });
         }
     }

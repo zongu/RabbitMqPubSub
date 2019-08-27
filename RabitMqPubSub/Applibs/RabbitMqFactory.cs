@@ -13,13 +13,13 @@ namespace RabitMqPubSub.Applibs
 
         private static Dictionary<string, IModel> models = new Dictionary<string, IModel>();
 
-        private static bool TryAddModel(string topicName)
+        private static bool TryAddModel(string topicName, string exchangeType)
         {
-            if (!models.ContainsKey(topicName))
+            if (!models.ContainsKey($"{topicName}-{exchangeType}"))
             {
                 var chennel = connection.CreateModel();
-                chennel.ExchangeDeclare($"Exchange-{ExchangeType.Direct}-{topicName}", ExchangeType.Direct);
-                models.Add(topicName, chennel);
+                chennel.ExchangeDeclare($"Exchange-{exchangeType}-{topicName}", exchangeType);
+                models.Add($"{topicName}-{exchangeType}", chennel);
 
                 return true;
             }
@@ -27,10 +27,10 @@ namespace RabitMqPubSub.Applibs
             return false;
         }
 
-        public static IModel GetChannel(string topicName)
+        public static IModel GetChannel(string topicName, string exchangeType)
         {
-            TryAddModel(topicName);
-            return models[topicName];
+            TryAddModel(topicName, exchangeType);
+            return models[$"{topicName}-{exchangeType}"];
         }
 
         public static void Start(string hostUri)

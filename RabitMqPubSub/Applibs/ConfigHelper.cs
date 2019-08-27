@@ -13,6 +13,8 @@ namespace RabitMqPubSub.Applibs
 
         public static readonly IEnumerable<string> SubQueueNames = ConfigurationManager.AppSettings["SubQueueNames"].ToString().Split(',');
 
+        public static readonly IEnumerable<string> SubExchangeTypes = ConfigurationManager.AppSettings["SubExchangeTypes"].ToString().Split(',');
+
         public static readonly string QueueId = ConfigurationManager.AppSettings["QueueId"].ToString();
 
         public static readonly string RmqExpiration = ConfigurationManager.AppSettings["RmqExpiration"].ToString();
